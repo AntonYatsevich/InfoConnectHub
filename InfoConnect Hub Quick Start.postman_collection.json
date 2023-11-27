@@ -1,0 +1,2645 @@
+{
+	"info": {
+		"_postman_id": "f214fd04-702e-49cb-8756-8c41a419abdd",
+		"name": "InfoConnect Hub Quick Start",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21486317"
+	},
+	"item": [
+		{
+			"name": "Initialization",
+			"item": [
+				{
+					"name": "0. Check connectivity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/connections",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1. Encrypt passwords",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(pm.response.text())\r",
+									"pm.collectionVariables.set(\"encrypted-as400-password\", jsonData.password);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"{{as400-password}}\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/encryption",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"encryption"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Create new connection",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.unset(\"encrypted-as400-password\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"connectionName\": \"{{connection-name}}\",\r\n    \"endpoint\": \"{{as400-endpoint}}\",\r\n    \"userId\": \"{{as400-user}}\",\r\n    \"password\": \"{{encrypted-as400-password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/connections",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"connections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Check connection",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/connections/{{connection-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"connections",
+								"{{connection-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Register new program call definition",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"programDefinitionName\": \"{{program-call-def-name}}\",\r\n  \"programName\": \"POSTORDSP\",\r\n  \"programLibrary\": \"MULEDEMOS\",\r\n  \"libraryListMode\": \"ADD_LAST\",\r\n  \"resetLibraryList\": false,\r\n  \"uri\": \"/api/custom/uri\",\r\n  \"connectionName\": \"{{connection-name}}\",\r\n  \"programCallParameters\": {\r\n    \"params\": [\r\n      {\r\n        \"parameterName\": \"orderId\",\r\n        \"sourceFieldName\": \"$['orderID']\",\r\n        \"dataType\": \"PACKED\",\r\n        \"length\": 8\r\n      },\r\n      {\r\n        \"parameterName\": \"orderLines\",\r\n        \"sourceFieldName\": \"$['orderLines']\",\r\n        \"dataType\": \"PACKED\",\r\n        \"length\": 4\r\n      },\r\n      {\r\n        \"parameterName\": \"orderLinesIn\",\r\n        \"sourceFieldName\": \"$['orderItemsIn']\",\r\n        \"dataType\": \"STRUCTURE\",\r\n        \"count\": 10,\r\n        \"dataStructureElements\": [\r\n          {\r\n            \"parameterName\": \"item\",\r\n            \"sourceFieldName\": \"$['item']\",\r\n            \"dataType\": \"STRING\",\r\n            \"length\": 35\r\n          },\r\n          {\r\n            \"parameterName\": \"qty\",\r\n            \"sourceFieldName\": \"$['qty']\",\r\n            \"dataType\": \"PACKED\",\r\n            \"length\": 11,\r\n            \"decimalPositions\": 3\r\n          },\r\n          {\r\n            \"parameterName\": \"price\",\r\n            \"sourceFieldName\": \"$['price']\",\r\n            \"dataType\": \"PACKED\",\r\n            \"length\": 14,\r\n            \"decimalPositions\": 4\r\n          }\r\n        ]\r\n      },\r\n      {\r\n        \"parameterName\": \"orderLinesOut\",\r\n        \"dataType\": \"STRUCTURE\",\r\n        \"usage\" : \"OUT\",\r\n        \"count\": 10,\r\n        \"dataStructureElements\": [\r\n          {\r\n            \"parameterName\": \"item\",\r\n            \"sourceFieldName\": \"$['item']\",\r\n            \"dataType\": \"STRING\",\r\n            \"length\": 35\r\n          },\r\n          {\r\n            \"parameterName\": \"qty\",\r\n            \"sourceFieldName\": \"$['qty']\",\r\n            \"dataType\": \"PACKED\",\r\n            \"length\": 11,\r\n            \"decimalPositions\": 3\r\n          },\r\n          {\r\n            \"parameterName\": \"price\",\r\n            \"sourceFieldName\": \"$['price']\",\r\n            \"dataType\": \"PACKED\",\r\n            \"length\": 14,\r\n            \"decimalPositions\": 4\r\n          }\r\n        ]\r\n      }\r\n    ]\r\n  },\r\n  \"procedureName\": \"POSTORDERS\",\r\n  \"procedureReturnsValue\": false,\r\n  \"threadSafe\": false\r\n}"
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/program-calls",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"program-calls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Check program call definition",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/program-calls/{{program-call-def-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"program-calls",
+								"{{program-call-def-name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Program call",
+			"item": [
+				{
+					"name": "6.2 Execute program call from connection Success",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderID\": 12345,\n  \"orderLines\": 10,\n  \"orderItemsIn\": [\n    {\n      \"item\": \"ITEM1\",\n      \"qty\": 123.45,\n      \"price\": 321.45\n    },\n    {\n      \"item\": \"ITEM2\",\n      \"qty\": 234.45,\n      \"price\": 987.45\n    },\n    {\n      \"item\": \"ITEM3\",\n      \"qty\": 235.98,\n      \"price\": 123.95\n    },\n    {\n      \"item\": \"ITEM4\",\n      \"qty\": 113.45,\n      \"price\": 221.45\n    },\n    {\n      \"item\": \"ITEM5\",\n      \"qty\": 134.45,\n      \"price\": 587.45\n    },\n    {\n      \"item\": \"ITEM6\",\n      \"qty\": 535.98,\n      \"price\": 323.95\n    },\n        {\n      \"item\": \"ITEM7\",\n      \"qty\": 163.45,\n      \"price\": 324.45\n    },\n    {\n      \"item\": \"ITEM8\",\n      \"qty\": 324.45,\n      \"price\": 557.45\n    },\n    {\n      \"item\": \"ITEM9\",\n      \"qty\": 435.98,\n      \"price\": 423.95\n    },\n    {\n      \"item\": \"ITEM10\",\n      \"qty\": 100.98,\n      \"price\": 323.95\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/custom/uri",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"custom",
+								"uri"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.3 Execute program call from connection Success",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/custom/uri?orderID=12345&orderLines=10&orderItemsIn_0.item=ITEM1&orderItemsIn_0.qty=123.45&orderItemsIn_0.price=321.45&orderItemsIn_1.item=ITEM2&orderItemsIn_1.qty=234.45&orderItemsIn_1.price=987.45&orderItemsIn_2.item=ITEM3&orderItemsIn_2.qty=235.98&orderItemsIn_2.price=123.95&orderItemsIn_3.item=ITEM4&orderItemsIn_3.qty=113.45&orderItemsIn_3.price=221.45&orderItemsIn_4.item=ITEM5&orderItemsIn_4.qty=134.45&orderItemsIn_4.price=587.45&orderItemsIn_5.item=ITEM6&orderItemsIn_5.qty=535.98&orderItemsIn_5.price=323.95&orderItemsIn_6.item=ITEM7&orderItemsIn_6.qty=163.45&orderItemsIn_6.price=324.45&orderItemsIn_7.item=ITEM8&orderItemsIn_7.qty=324.45&orderItemsIn_7.price=557.45&orderItemsIn_8.item=ITEM9&orderItemsIn_8.qty=435.98&orderItemsIn_8.price=423.95&orderItemsIn_9.item=ITEM10&orderItemsIn_9.qty=100.98&orderItemsIn_9.price=323.95",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"custom",
+								"uri"
+							],
+							"query": [
+								{
+									"key": "orderID",
+									"value": "12345"
+								},
+								{
+									"key": "orderLines",
+									"value": "10"
+								},
+								{
+									"key": "orderItemsIn_0.item",
+									"value": "ITEM1"
+								},
+								{
+									"key": "orderItemsIn_0.qty",
+									"value": "123.45"
+								},
+								{
+									"key": "orderItemsIn_0.price",
+									"value": "321.45"
+								},
+								{
+									"key": "orderItemsIn_1.item",
+									"value": "ITEM2"
+								},
+								{
+									"key": "orderItemsIn_1.qty",
+									"value": "234.45"
+								},
+								{
+									"key": "orderItemsIn_1.price",
+									"value": "987.45"
+								},
+								{
+									"key": "orderItemsIn_2.item",
+									"value": "ITEM3"
+								},
+								{
+									"key": "orderItemsIn_2.qty",
+									"value": "235.98"
+								},
+								{
+									"key": "orderItemsIn_2.price",
+									"value": "123.95"
+								},
+								{
+									"key": "orderItemsIn_3.item",
+									"value": "ITEM4"
+								},
+								{
+									"key": "orderItemsIn_3.qty",
+									"value": "113.45"
+								},
+								{
+									"key": "orderItemsIn_3.price",
+									"value": "221.45"
+								},
+								{
+									"key": "orderItemsIn_4.item",
+									"value": "ITEM5"
+								},
+								{
+									"key": "orderItemsIn_4.qty",
+									"value": "134.45"
+								},
+								{
+									"key": "orderItemsIn_4.price",
+									"value": "587.45"
+								},
+								{
+									"key": "orderItemsIn_5.item",
+									"value": "ITEM6"
+								},
+								{
+									"key": "orderItemsIn_5.qty",
+									"value": "535.98"
+								},
+								{
+									"key": "orderItemsIn_5.price",
+									"value": "323.95"
+								},
+								{
+									"key": "orderItemsIn_6.item",
+									"value": "ITEM7"
+								},
+								{
+									"key": "orderItemsIn_6.qty",
+									"value": "163.45"
+								},
+								{
+									"key": "orderItemsIn_6.price",
+									"value": "324.45"
+								},
+								{
+									"key": "orderItemsIn_7.item",
+									"value": "ITEM8"
+								},
+								{
+									"key": "orderItemsIn_7.qty",
+									"value": "324.45"
+								},
+								{
+									"key": "orderItemsIn_7.price",
+									"value": "557.45"
+								},
+								{
+									"key": "orderItemsIn_8.item",
+									"value": "ITEM9"
+								},
+								{
+									"key": "orderItemsIn_8.qty",
+									"value": "435.98"
+								},
+								{
+									"key": "orderItemsIn_8.price",
+									"value": "423.95"
+								},
+								{
+									"key": "orderItemsIn_9.item",
+									"value": "ITEM10"
+								},
+								{
+									"key": "orderItemsIn_9.qty",
+									"value": "100.98"
+								},
+								{
+									"key": "orderItemsIn_9.price",
+									"value": "323.95"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.2 Execute program call from connection Failure",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderID\": 12345,\n  \"orderLines\": 10,\n  \"orderItemsIn\": [\n    {\n      \"item\": \"ITEM1\",\n      \"qty\": 123.45,\n      \"price\": 321.45\n    },\n    {\n      \"item\": \"ITEM2\",\n      \"qty\": 234.45,\n      \"price\": 987.45\n    },\n    {\n      \"item\": \"ITEM3\",\n      \"qty\": 235.98,\n      \"price\": 123.95\n    },\n    {\n      \"item\": \"ITEM4\",\n      \"qty\": 113.45,\n      \"price\": 221.45\n    },\n    {\n      \"item\": \"ITEM5\",\n      \"qty\": 134.45,\n      \"price\": 587.45\n    },\n    {\n      \"item\": \"ITEM6\",\n      \"qty\": 535.98,\n      \"price\": 323.95\n    },\n        {\n      \"item\": \"ITEM7\",\n      \"qty\": 163.45,\n      \"price\": 324.45\n    },\n    {\n      \"item\": \"ITEM8\",\n      \"qty\": 324.45,\n      \"price\": 557.45\n    },\n    {\n      \"item\": \"ITEM9\",\n      \"qty\": 435.98,\n      \"price\": 423.95\n    },\n    {\n      \"item\": \"ITEM10\",\n      \"qty\": 100.98,\n      \"price\": 323.95\n    },\n    {\n      \"item\": \"ITEM11\",\n      \"qty\": 100.98,\n      \"price\": 323.95\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/custom/uri",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"custom",
+								"uri"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.3 Execute program call from connection Failure",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/custom/uri?orderID=12345&orderLines=10&orderItemsIn_0.item=ITEM1&orderItemsIn_0.qty=123.45&orderItemsIn_0.price=321.45&orderItemsIn_1.item=ITEM2&orderItemsIn_1.qty=234.45&orderItemsIn_1.price=987.45&orderItemsIn_2.item=ITEM3&orderItemsIn_2.qty=235.98&orderItemsIn_2.price=123.95&orderItemsIn_3.item=ITEM4&orderItemsIn_3.qty=113.45&orderItemsIn_3.price=221.45&orderItemsIn_4.item=ITEM5&orderItemsIn_4.qty=134.45&orderItemsIn_4.price=587.45&orderItemsIn_5.item=ITEM6&orderItemsIn_5.qty=535.98&orderItemsIn_5.price=323.95&orderItemsIn_6.item=ITEM7&orderItemsIn_6.qty=163.45&orderItemsIn_6.price=324.45&orderItemsIn_7.item=ITEM8&orderItemsIn_7.qty=324.45&orderItemsIn_7.price=557.45&orderItemsIn_8.item=ITEM9&orderItemsIn_8.qty=435.98&orderItemsIn_8.price=423.95&orderItemsIn_9.item=ITEM10&orderItemsIn_9.qty=100.98&orderItemsIn_9.price=323.95&orderItemsIn_10.item=ITEM11&orderItemsIn_10.qty=100.98&orderItemsIn_10.price=323.95",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"custom",
+								"uri"
+							],
+							"query": [
+								{
+									"key": "orderID",
+									"value": "12345"
+								},
+								{
+									"key": "orderLines",
+									"value": "10"
+								},
+								{
+									"key": "orderItemsIn_0.item",
+									"value": "ITEM1"
+								},
+								{
+									"key": "orderItemsIn_0.qty",
+									"value": "123.45"
+								},
+								{
+									"key": "orderItemsIn_0.price",
+									"value": "321.45"
+								},
+								{
+									"key": "orderItemsIn_1.item",
+									"value": "ITEM2"
+								},
+								{
+									"key": "orderItemsIn_1.qty",
+									"value": "234.45"
+								},
+								{
+									"key": "orderItemsIn_1.price",
+									"value": "987.45"
+								},
+								{
+									"key": "orderItemsIn_2.item",
+									"value": "ITEM3"
+								},
+								{
+									"key": "orderItemsIn_2.qty",
+									"value": "235.98"
+								},
+								{
+									"key": "orderItemsIn_2.price",
+									"value": "123.95"
+								},
+								{
+									"key": "orderItemsIn_3.item",
+									"value": "ITEM4"
+								},
+								{
+									"key": "orderItemsIn_3.qty",
+									"value": "113.45"
+								},
+								{
+									"key": "orderItemsIn_3.price",
+									"value": "221.45"
+								},
+								{
+									"key": "orderItemsIn_4.item",
+									"value": "ITEM5"
+								},
+								{
+									"key": "orderItemsIn_4.qty",
+									"value": "134.45"
+								},
+								{
+									"key": "orderItemsIn_4.price",
+									"value": "587.45"
+								},
+								{
+									"key": "orderItemsIn_5.item",
+									"value": "ITEM6"
+								},
+								{
+									"key": "orderItemsIn_5.qty",
+									"value": "535.98"
+								},
+								{
+									"key": "orderItemsIn_5.price",
+									"value": "323.95"
+								},
+								{
+									"key": "orderItemsIn_6.item",
+									"value": "ITEM7"
+								},
+								{
+									"key": "orderItemsIn_6.qty",
+									"value": "163.45"
+								},
+								{
+									"key": "orderItemsIn_6.price",
+									"value": "324.45"
+								},
+								{
+									"key": "orderItemsIn_7.item",
+									"value": "ITEM8"
+								},
+								{
+									"key": "orderItemsIn_7.qty",
+									"value": "324.45"
+								},
+								{
+									"key": "orderItemsIn_7.price",
+									"value": "557.45"
+								},
+								{
+									"key": "orderItemsIn_8.item",
+									"value": "ITEM9"
+								},
+								{
+									"key": "orderItemsIn_8.qty",
+									"value": "435.98"
+								},
+								{
+									"key": "orderItemsIn_8.price",
+									"value": "423.95"
+								},
+								{
+									"key": "orderItemsIn_9.item",
+									"value": "ITEM10"
+								},
+								{
+									"key": "orderItemsIn_9.qty",
+									"value": "100.98"
+								},
+								{
+									"key": "orderItemsIn_9.price",
+									"value": "323.95"
+								},
+								{
+									"key": "orderItemsIn_10.item",
+									"value": "ITEM11"
+								},
+								{
+									"key": "orderItemsIn_10.qty",
+									"value": "100.98"
+								},
+								{
+									"key": "orderItemsIn_10.price",
+									"value": "323.95"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DQ poller",
+			"item": [
+				{
+					"name": "1. Encrypt passwords",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(pm.response.text())\r",
+									"pm.collectionVariables.set(\"encrypted-jms-password\", jsonData.jmsPassword);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"jmsPassword\": \"{{jms-password}}\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/encryption",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"encryption"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Register DQ poller",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.unset(\"encrypted-jms-password\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pollerName\":\"{{poller-name}}\",\r\n    \"dqName\":\"{{dq-name}}\",\r\n    \"libraryName\":\"{{dq-library}}\",\r\n    \"messageBroker\": \"{{poller-message-broker}}\",\r\n    \"messageBrokerProperties\" : {\r\n        \"jmsProperties\" : {\r\n            \"connectionFactory\": \"{{jms-generation}}\",\r\n            \"url\": \"tcp://{{jms-host}}:{{jms-port}}\",\r\n            \"userName\": \"{{jms-user}}\",\r\n            \"password\": \"{{encrypted-jms-password}}\",\r\n            \"queueName\" : \"{{dq-name}}\"\r\n        }\r\n    },\r\n    \"threadCount\": \"5\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/connections/infoview/dqpollers",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"connections",
+								"infoview",
+								"dqpollers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Check DQ poller",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/dqpollers/{{poller-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"dqpollers",
+								"{{poller-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Publish message into data queue",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataQueueEntry\": \"SampleMesage\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/connections/{{connection-name}}/data-queue/{{dq-library}}/{{dq-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"connections",
+								"{{connection-name}}",
+								"data-queue",
+								"{{dq-library}}",
+								"{{dq-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Stop DQ poller",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/dqpollers/{{poller-name}}/stop",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"dqpollers",
+								"{{poller-name}}",
+								"stop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Publish message into data queue",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password@123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "User",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "dataQueueKey",
+								"value": "12",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "formatFileName",
+								"value": "TESTFMT",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "formatFileLibrary",
+								"value": "MULEDEMOS",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataQueueEntry\": \"SampleMessage\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/api/connections/{{connection-name}}/data-queue/{{dq-library}}/{{dq-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"api",
+								"connections",
+								"{{connection-name}}",
+								"data-queue",
+								"{{dq-library}}",
+								"{{dq-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Start DQ poller",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/dqpollers/{{poller-name}}/start",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"dqpollers",
+								"{{poller-name}}",
+								"start"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Utilization",
+			"item": [
+				{
+					"name": "1. Delete DQ poller",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/dqpollers/{{poller-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"dqpollers",
+								"{{poller-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Delete program call definition",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/program-calls/{{program-call-def-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"program-calls",
+								"{{program-call-def-name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Delete connection",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{hub-host}}:{{hub-port}}/admin/connections/{{connection-name}}",
+							"protocol": "http",
+							"host": [
+								"{{hub-host}}"
+							],
+							"port": "{{hub-port}}",
+							"path": [
+								"admin",
+								"connections",
+								"{{connection-name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "OAuth InfoConnect Hub",
+			"item": [
+				{
+					"name": "AWS",
+					"item": [
+						{
+							"name": "AWS: Get oauth token",
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "clientId",
+											"value": "{{client-id}}",
+											"type": "string"
+										},
+										{
+											"key": "authUrl",
+											"value": "{{auth-url}}",
+											"type": "string"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{callback-url}}",
+											"type": "string"
+										},
+										{
+											"key": "scope",
+											"value": "phone email openid",
+											"type": "string"
+										},
+										{
+											"key": "client_authentication",
+											"value": "body",
+											"type": "string"
+										},
+										{
+											"key": "grant_type",
+											"value": "implicit",
+											"type": "string"
+										},
+										{
+											"key": "clientSecret",
+											"value": "a5c5s3kmuni83102pdiv4nlkkd297f17fk1f5t2la1hoin34cgf",
+											"type": "string"
+										},
+										{
+											"key": "tokenName",
+											"value": "AWSOauthToken",
+											"type": "string"
+										},
+										{
+											"key": "accessTokenUrl",
+											"value": "https://dev-07921408.okta.com/default/oauth2/v1/token",
+											"type": "string"
+										},
+										{
+											"key": "resource",
+											"value": {
+												"540b5e7b-0491-42cb-8c48-0d69e3908b1a": "https://accounts.google.com"
+											},
+											"type": "any"
+										},
+										{
+											"key": "useBrowser",
+											"value": false,
+											"type": "boolean"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "AWS: Validate oauth token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/oauth2/AWS/validate?token={{token}}",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"oauth2",
+										"AWS",
+										"validate"
+									],
+									"query": [
+										{
+											"key": "token",
+											"value": "{{token}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Salesforce",
+					"item": [
+						{
+							"name": "SALESFORCE: Get oauth token",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "oauth2",
+									"oauth2": [
+										{
+											"key": "clientSecret",
+											"value": "{{client-secret}}",
+											"type": "string"
+										},
+										{
+											"key": "clientId",
+											"value": "{{client-id}}",
+											"type": "string"
+										},
+										{
+											"key": "accessTokenUrl",
+											"value": "{{access-token-url}}",
+											"type": "string"
+										},
+										{
+											"key": "authUrl",
+											"value": "{{auth-url}}",
+											"type": "string"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{callback-url}}",
+											"type": "string"
+										},
+										{
+											"key": "tokenName",
+											"value": "SalesforceOauthToken",
+											"type": "string"
+										},
+										{
+											"key": "client_authentication",
+											"value": "body",
+											"type": "string"
+										},
+										{
+											"key": "scope",
+											"value": "openid",
+											"type": "string"
+										},
+										{
+											"key": "grant_type",
+											"value": "authorization_code",
+											"type": "string"
+										},
+										{
+											"key": "resource",
+											"value": {
+												"540b5e7b-0491-42cb-8c48-0d69e3908b1a": "https://accounts.google.com"
+											},
+											"type": "any"
+										},
+										{
+											"key": "useBrowser",
+											"value": false,
+											"type": "boolean"
+										},
+										{
+											"key": "addTokenTo",
+											"value": "header",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SALESFORCE: Validate oauth token",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "default"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client-id}}",
+											"type": "default"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client-secret}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://login.salesforce.com/services/oauth2/introspect",
+									"protocol": "https",
+									"host": [
+										"login",
+										"salesforce",
+										"com"
+									],
+									"path": [
+										"services",
+										"oauth2",
+										"introspect"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Okta",
+					"item": [
+						{
+							"name": "OKTA: Get auth code",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{okta-domain}}/oauth2/default/v1/authorize?client_id={{client-id}}&redirect_uri={{redirect-uri}}&scope=openid&response_type=code&response_mode=fragment&state={{state}}&nonce={{nonce}}",
+									"protocol": "https",
+									"host": [
+										"{{okta-domain}}"
+									],
+									"path": [
+										"oauth2",
+										"default",
+										"v1",
+										"authorize"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{client-id}}"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{redirect-uri}}"
+										},
+										{
+											"key": "scope",
+											"value": "openid"
+										},
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "response_mode",
+											"value": "fragment"
+										},
+										{
+											"key": "state",
+											"value": "{{state}}"
+										},
+										{
+											"key": "nonce",
+											"value": "{{nonce}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "OKTA: Get oauth token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "{{client-secret}}",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "{{client-id}}",
+											"type": "string"
+										},
+										{
+											"key": "saveHelperData",
+											"value": true,
+											"type": "boolean"
+										},
+										{
+											"key": "showPassword",
+											"value": false,
+											"type": "boolean"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Basic"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "authorization_code",
+											"type": "text"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{redirect-uri}}",
+											"type": "text"
+										},
+										{
+											"key": "code",
+											"value": "code",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://{{okta-domain}}/oauth2/default/v1/token",
+									"protocol": "https",
+									"host": [
+										"{{okta-domain}}"
+									],
+									"path": [
+										"oauth2",
+										"default",
+										"v1",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "OKTA: Validate oauth token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "rmk6_oHiACDgV6SgZ0XXpc0hde1qdldqt6cRen8x",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "0oa9mghz12AunmXx75d7",
+											"type": "string"
+										},
+										{
+											"key": "saveHelperData",
+											"value": true,
+											"type": "boolean"
+										},
+										{
+											"key": "showPassword",
+											"value": false,
+											"type": "boolean"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "default"
+										},
+										{
+											"key": "token_type_hint",
+											"value": "access_token",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://{{okta-domain}}/oauth2/default/v1/introspect",
+									"protocol": "https",
+									"host": [
+										"{{okta-domain}}"
+									],
+									"path": [
+										"oauth2",
+										"default",
+										"v1",
+										"introspect"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "AzureAD",
+					"item": [
+						{
+							"name": "AZUREAD: Get oauth token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "default"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client-id}}",
+											"type": "default"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client-secret}}",
+											"type": "default"
+										},
+										{
+											"key": "scope",
+											"value": "{{scope}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://login.microsoftonline.com/{{organizations}}/oauth2/v2.0/token",
+									"protocol": "https",
+									"host": [
+										"login",
+										"microsoftonline",
+										"com"
+									],
+									"path": [
+										"{{organizations}}",
+										"oauth2",
+										"v2.0",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Built-in oauth",
+					"item": [
+						{
+							"name": "BUILT_IN: Get oauth code",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/oauth2/authorize?response_type=code&client_id=client-id&scope=openid&redirect_uri=http://spring.io/auth&code_challenge={{code-challenge}}&code_challenge_method=S256",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"oauth2",
+										"authorize"
+									],
+									"query": [
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "client_id",
+											"value": "client-id"
+										},
+										{
+											"key": "scope",
+											"value": "openid"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "http://spring.io/auth"
+										},
+										{
+											"key": "code_challenge",
+											"value": "{{code-challenge}}"
+										},
+										{
+											"key": "code_challenge_method",
+											"value": "S256"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "BUILT_IN: Get oauth token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "client-secret",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "client-id",
+											"type": "string"
+										},
+										{
+											"key": "saveHelperData",
+											"value": true,
+											"type": "boolean"
+										},
+										{
+											"key": "showPassword",
+											"value": false,
+											"type": "boolean"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/oauth2/token?client_id=client-id&redirect_uri=http://spring.io/auth&grant_type=authorization_code&code={{code}}&code_verifier={{code-verifier}}",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"oauth2",
+										"token"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "client-id"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "http://spring.io/auth"
+										},
+										{
+											"key": "grant_type",
+											"value": "authorization_code"
+										},
+										{
+											"key": "code",
+											"value": "{{code}}"
+										},
+										{
+											"key": "code_verifier",
+											"value": "{{code-verifier}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "BUILT_IN: Validate oauht token",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "client-secret",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "client-id",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "default"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/oauth2/introspect",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"oauth2",
+										"introspect"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "BUILT_IN:Get code verifier and code challenge",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/oauth2/code",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"oauth2",
+										"code"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "InfoConnect Hub RPA Quick Start",
+			"item": [
+				{
+					"name": "Initialization",
+					"item": [
+						{
+							"name": "0. Check connectivity",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "Admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/rpa/admin/connections",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"rpa",
+										"admin",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "1. Encrypt passwords",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(pm.response.text())\r",
+											"pm.collectionVariables.set(\"encrypted-as400-password\", jsonData.password);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "Admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password\": \"{{as400-password}}\"\r\n}"
+								},
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/admin/encryption",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"admin",
+										"encryption"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Create new connection",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.collectionVariables.unset(\"encrypted-as400-password\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "Admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"connectionName\": \"{{connection-name}}\",\r\n    \"host\": \"{{as400-endpoint}}\",\r\n    \"port\":\"{{as400-port}}\",\r\n    \"userName\": \"{{as400-user}}\",\r\n    \"userNameXPosition\":\"{{as400-user-X-Position}}\",\r\n    \"userNameYPosition\":\"{{as400-user-Y-Position}}\",\r\n    \"password\": \"{{encrypted-as400-password}}\",\r\n    \"passwordXPosition\":\"{{as400-password-X-Position}}\",\r\n    \"passwordYPosition\":\"{{as400-password-Y-Position}}\",\r\n    \"initialKeyString\": \"{{as400-initial-key-string}}\",\r\n    \"sslType\":\"{{ssl-type}}\",\r\n    \"reconnectionAttempts\":\"{{reconnection-attempts}}\",\r\n    \"timeBetweenAttempts\":{{time-between-attempts}},\r\n    \"debugMode\":\"{{debug-mode}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/rpa/admin/connections",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"rpa",
+										"admin",
+										"connections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Check connection",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "Admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/rpa/admin/connections/{{connection-name}}",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"rpa",
+										"admin",
+										"connections",
+										"{{connection-name}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Execute script",
+					"item": [
+						{
+							"name": "Execute script",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password@123",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "User",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"keyString\":\"{{key-string}}\",\n    \"inputParameter\":{\n        \"uri\":\"{{input-parameter-uri}}\"\n    },\n    \"macroTransportConfig\" : {\n        \"macroFileName\":\"{{macro-file-name}}\",\n        \"macroFileProtocol\":\"{{macro-file-protocol}}\",\n        \"macroInputParameter\":{\n            \"items\":[{\n                \"ItemNo\": 1234,\n                \"ItemName\": \"name9\",\n                \"Quantity\": 2,\n                \"UnitPrice\": 30\n                },\n                {\n                \"ItemNo\": 1235,\n                \"ItemName\": \"name10\",\n                \"Quantity\": 2,\n                \"UnitPrice\": 30\n                }]\n        },\n        \"macroOutputParameter\":null,\n        \"transportConfig\":{\n            \"FILE\" : {\n                \"filePath\":\"{{file-path}}\"\n            },\n            \"S3\" : {\n                \"s3Bucket\":\"{{bucket-name}}\",\n                \"s3Region\":\"{{region}}\",\n                \"s3AccessKey\": \"{{encrypted-s3-access-key}}\",\n                \"s3SecretKey\": \"{{encrypted-s3-secret-key}}\"\n            },\n            \"FTP\" : {\n                \"ftpHost\":\"{{ftp-host}}\",\n                \"ftpDirPath\":\"{{ftp-dir-path}}\",\n                \"ftpUserName\":\"{{ftp-user}}\",\n                \"ftpPassword\":\"{{encrypted-ftp-password}}\"\n            },\n            \"HTTP\" : {\n                \"httpUrl\":\"{{http-host}}\",\n                \"httpDirPath\":\"{{http-dir-path}}\",\n                \"httpUserName\":\"{{http-user}}\",\n                \"httpPassword\":\"{{encrypted-http-password}}\"\n            }\n        }\n    }\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/rpa/api/executeScript/connections/{{connection-name}}",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"rpa",
+										"api",
+										"executeScript",
+										"connections",
+										"{{connection-name}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Utilization",
+					"item": [
+						{
+							"name": "3. Delete connection",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "Password",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "Admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{hub-host}}:{{hub-port}}/rpa/admin/connections/{{connection-name}}",
+									"protocol": "http",
+									"host": [
+										"{{hub-host}}"
+									],
+									"port": "{{hub-port}}",
+									"path": [
+										"rpa",
+										"admin",
+										"connections",
+										"{{connection-name}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "hub-host",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"key": "hub-port",
+			"value": "8080",
+			"type": "string"
+		},
+		{
+			"key": "as400-endpoint",
+			"value": "as400-endpoint",
+			"type": "string"
+		},
+		{
+			"key": "as400-user",
+			"value": "user",
+			"type": "string"
+		},
+		{
+			"key": "as400-password",
+			"value": "password",
+			"type": "string"
+		},
+		{
+			"key": "connection-name",
+			"value": "connection",
+			"type": "string"
+		},
+		{
+			"key": "program-call-def-name",
+			"value": "program",
+			"type": "string"
+		},
+		{
+			"key": "poller-name",
+			"value": "poller",
+			"type": "string"
+		},
+		{
+			"key": "dq-name",
+			"value": "data-queue",
+			"type": "string"
+		},
+		{
+			"key": "dq-library",
+			"value": "data-queue-library",
+			"type": "string"
+		},
+		{
+			"key": "poller-message-broker",
+			"value": "JMS/SNS/ServiceBus",
+			"type": "string"
+		},
+		{
+			"key": "jms-generation",
+			"value": "Artemis/ActiveMQ",
+			"type": "string"
+		},
+		{
+			"key": "jms-host",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"key": "jms-port",
+			"value": "61616",
+			"type": "string"
+		},
+		{
+			"key": "jms-user",
+			"value": "user",
+			"type": "string"
+		},
+		{
+			"key": "jms-password",
+			"value": "password",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "token"
+		},
+		{
+			"key": "code",
+			"value": "authorization-code"
+		},
+		{
+			"key": "code-verifier",
+			"value": "code-verifier"
+		},
+		{
+			"key": "code-challenge",
+			"value": "code-challenge"
+		},
+		{
+			"key": "as400-port",
+			"value": "as400-port",
+			"type": "string"
+		},
+		{
+			"key": "as400-user-X-Position",
+			"value": "as400-user-X-Position",
+			"type": "string"
+		},
+		{
+			"key": "as400-user-Y-Position",
+			"value": "as400-user-Y-Position",
+			"type": "string"
+		},
+		{
+			"key": "encrypted-as400-password",
+			"value": "encrypted-as400-password",
+			"type": "string"
+		},
+		{
+			"key": "as400-password-X-Position",
+			"value": "as400-password-X-Position",
+			"type": "string"
+		},
+		{
+			"key": "as400-password-Y-Position",
+			"value": "as400-password-Y-Position",
+			"type": "string"
+		},
+		{
+			"key": "as400-initial-key-string",
+			"value": "as400-initial-key-string",
+			"type": "string"
+		},
+		{
+			"key": "ssl-type",
+			"value": "ssl-type",
+			"type": "string"
+		},
+		{
+			"key": "reconnection-attempts",
+			"value": "reconnection-attempts",
+			"type": "string"
+		},
+		{
+			"key": "time-between-attempts",
+			"value": "time-between-attempts",
+			"type": "string"
+		},
+		{
+			"key": "debug-mode",
+			"value": "debug-mode",
+			"type": "string"
+		},
+		{
+			"key": "key-string",
+			"value": "key-string",
+			"type": "string"
+		},
+		{
+			"key": "input-parameter-uri",
+			"value": "input-parameter-uri",
+			"type": "string"
+		},
+		{
+			"key": "macro-file-name",
+			"value": "macro-file-name",
+			"type": "string"
+		},
+		{
+			"key": "macro-file-protocol",
+			"value": "macro-file-protocol",
+			"type": "string"
+		},
+		{
+			"key": "file-path",
+			"value": "file-path",
+			"type": "string"
+		},
+		{
+			"key": "bucket-name",
+			"value": "bucket-name",
+			"type": "string"
+		},
+		{
+			"key": "region",
+			"value": "region",
+			"type": "string"
+		},
+		{
+			"key": "encrypted-s3-access-key",
+			"value": "encrypted-s3-access-key",
+			"type": "string"
+		},
+		{
+			"key": "encrypted-s3-secret-key",
+			"value": "encrypted-s3-secret-key",
+			"type": "string"
+		},
+		{
+			"key": "ftp-host",
+			"value": "ftp-host",
+			"type": "string"
+		},
+		{
+			"key": "ftp-dir-path",
+			"value": "ftp-dir-path",
+			"type": "string"
+		},
+		{
+			"key": "ftp-user",
+			"value": "ftp-user",
+			"type": "string"
+		},
+		{
+			"key": "encrypted-ftp-password",
+			"value": "encrypted-ftp-password",
+			"type": "string"
+		},
+		{
+			"key": "http-host",
+			"value": "http-host",
+			"type": "string"
+		},
+		{
+			"key": "http-dir-path",
+			"value": "http-dir-path",
+			"type": "string"
+		},
+		{
+			"key": "http-user",
+			"value": "http-user",
+			"type": "string"
+		},
+		{
+			"key": "encrypted-http-password",
+			"value": "encrypted-http-password",
+			"type": "string"
+		}
+	]
+}
